@@ -4,11 +4,12 @@ import PropTypes from "prop-types";
 import { createStore, applyMiddleware } from "redux";
 import { Provider, connect } from "react-redux";
 import thunk from "redux-thunk";
-import axios from "axios";
 import "./index.css";
 // import App from "./App";
 import registerServiceWorker from "./registerServiceWorker";
 import _ from "lodash";
+
+import { actionTypes, fetchTodos, createTodo, toggleTodo } from "./actions.js";
 
 // React component
 class TodoList extends React.Component {
@@ -18,10 +19,31 @@ class TodoList extends React.Component {
 
   render() {
     const { todos } = this.props;
+
+    const TodoItem = props => {
+      let { checked, id, name } = props.todo;
+      const itemStyles = checked ? { textDecoration: "line-through" } : null;
+      return (
+        <label style={itemStyles}>
+          <input
+            className={checked ? "checked" : "unchecked"}
+            type="checkbox"
+            checked={checked}
+            onChange={() => this.props.toggleTodo(id, !checked)}
+          />
+          <span>{name}</span>
+        </label>
+      );
+    };
+
     return (
       <div>
-        {_.map(todos, (todo, index) => {
-          return <p key={index}>{todo.name}</p>;
+        {_.map(todos, todo => {
+          return (
+            <div key={todo.id}>
+              <TodoItem todo={todo} />
+            </div>
+          );
         })}
       </div>
     );
@@ -29,42 +51,25 @@ class TodoList extends React.Component {
 }
 
 TodoList.propTypes = {
-  todos: PropTypes.array.isRequired
-};
-
-// Actions
-const actionTypes = {
-  RECEIVE_TODOS: "RECEIVE_TODOS"
-};
-const fetchTodos = () => {
-  return dispatch => {
-    axios
-      .get("http://localhost:3000/api/todos")
-      .then(response => {
-        dispatch(receiveTodos(response.data));
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  };
-};
-const receiveTodos = data => {
-  return {
-    todos: data,
-    type: actionTypes.RECEIVE_TODOS
-  };
+  todos: PropTypes.object.isRequired
 };
 
 // Reducer
-function reducer(state = { todos: [] }, action) {
+function reducer(state = { todos: {} }, action) {
+  console.log(action.type, action);
   switch (action.type) {
     case actionTypes.RECEIVE_TODOS:
       return Object.assign(
         {},
         {
-          todos: action.todos
+          todos: _.keyBy(action.todos, "id")
         }
       );
+    case actionTypes.RECEIVE_TODO:
+      console.log(action.todo);
+      return Object.assign({}, state, {
+        todos: { ...state.todos, ..._.keyBy([action.todo], "id") }
+      });
     default:
       return state;
   }
@@ -83,7 +88,8 @@ function mapStateToProps(state) {
 // Map Redux actions to component props
 function mapDispatchToProps(dispatch) {
   return {
-    fetchTodos: () => dispatch(fetchTodos())
+    fetchTodos: () => dispatch(fetchTodos()),
+    toggleTodo: (id, checked) => dispatch(toggleTodo(id, checked))
   };
 }
 
