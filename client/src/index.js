@@ -13,8 +13,27 @@ import { actionTypes, fetchTodos, createTodo, toggleTodo } from "./actions.js";
 
 // React component
 class TodoList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      newTodoInput: ""
+    };
+    this.addTodo = this.addTodo.bind(this);
+    this.handleTodoInput = this.handleTodoInput.bind(this);
+  }
+
   componentDidMount() {
     this.props.fetchTodos();
+  }
+
+  addTodo() {
+    this.props.createTodo({ name: this.state.newTodoInput });
+  }
+
+  handleTodoInput(e) {
+    this.setState({
+      newTodoInput: e.target.value
+    });
   }
 
   render() {
@@ -38,6 +57,16 @@ class TodoList extends React.Component {
 
     return (
       <div>
+        <div>
+          <input
+            type="text"
+            onChange={this.handleTodoInput}
+            value={this.state.newTodoInput}
+          />
+        </div>
+        <div>
+          <button onClick={this.addTodo}>Add Todo</button>
+        </div>
         {_.map(todos, todo => {
           return (
             <div key={todo.id}>
@@ -88,6 +117,7 @@ function mapStateToProps(state) {
 // Map Redux actions to component props
 function mapDispatchToProps(dispatch) {
   return {
+    createTodo: todo => dispatch(createTodo(todo)),
     fetchTodos: () => dispatch(fetchTodos()),
     toggleTodo: (id, checked) => dispatch(toggleTodo(id, checked))
   };
