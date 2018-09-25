@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import _ from "lodash";
 
 import { fetchTodos, createTodo, toggleTodo } from "../actions.js";
@@ -50,6 +51,11 @@ class TodoList extends Component {
 
     return (
       <div>
+        <div>
+          <p>
+            <Link to="/">Back to Hello World</Link>
+          </p>
+        </div>
         <div>
           <input
             type="text"
