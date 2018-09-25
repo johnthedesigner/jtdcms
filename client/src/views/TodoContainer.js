@@ -22,6 +22,7 @@ class TodoList extends Component {
 
   addTodo() {
     this.props.createTodo({ name: this.state.newTodoInput });
+    this.setState({ newTodoInput: "" });
   }
 
   handleTodoInput(e) {
@@ -31,7 +32,7 @@ class TodoList extends Component {
   }
 
   render() {
-    const { todos } = this.props;
+    const { todosById } = this.props;
 
     const TodoItem = props => {
       let { checked, id, name } = props.todo;
@@ -66,7 +67,7 @@ class TodoList extends Component {
         <div>
           <button onClick={this.addTodo}>Add Todo</button>
         </div>
-        {_.map(todos, todo => {
+        {_.map(todosById, todo => {
           return (
             <div key={todo.id}>
               <TodoItem todo={todo} />
@@ -79,13 +80,13 @@ class TodoList extends Component {
 }
 
 TodoList.propTypes = {
-  todos: PropTypes.object.isRequired
+  todosById: PropTypes.object.isRequired
 };
 
 // Map Redux state to component props
 function mapStateToProps(state) {
   return {
-    todos: state.todos
+    todosById: state.todosById
   };
 }
 
