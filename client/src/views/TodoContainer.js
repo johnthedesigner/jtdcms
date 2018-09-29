@@ -6,6 +6,22 @@ import _ from "lodash";
 
 import { fetchTodos, createTodo, toggleTodo } from "../actions.js";
 
+const TodoItem = props => {
+  let { checked, id, name } = props.todo;
+  const itemStyles = checked ? { textDecoration: "line-through" } : null;
+  return (
+    <label style={itemStyles}>
+      <input
+        className={checked ? "checked" : "unchecked"}
+        type="checkbox"
+        checked={checked}
+        onChange={() => props.toggleTodo(id, !checked)}
+      />
+      <span>{name}</span>
+    </label>
+  );
+};
+
 class TodoList extends Component {
   constructor(props) {
     super(props);
@@ -20,7 +36,13 @@ class TodoList extends Component {
     this.props.fetchTodos();
   }
 
-  addTodo() {
+  shouldComponentUpdate(nextProps) {
+    console.log("nextProps: ", nextProps);
+    return true;
+  }
+
+  addTodo(e) {
+    e.preventDefault();
     this.props.createTodo({ name: this.state.newTodoInput });
     this.setState({ newTodoInput: "" });
   }
@@ -32,23 +54,7 @@ class TodoList extends Component {
   }
 
   render() {
-    const { todosById } = this.props;
-
-    const TodoItem = props => {
-      let { checked, id, name } = props.todo;
-      const itemStyles = checked ? { textDecoration: "line-through" } : null;
-      return (
-        <label style={itemStyles}>
-          <input
-            className={checked ? "checked" : "unchecked"}
-            type="checkbox"
-            checked={checked}
-            onChange={() => this.props.toggleTodo(id, !checked)}
-          />
-          <span>{name}</span>
-        </label>
-      );
-    };
+    console.log("render TodoContainer");
 
     return (
       <div>
@@ -58,19 +64,24 @@ class TodoList extends Component {
           </p>
         </div>
         <div>
-          <input
-            type="text"
-            onChange={this.handleTodoInput}
-            value={this.state.newTodoInput}
-          />
+          <button onClick={this.props.fetchTodos}>Fetch Todos</button>
         </div>
-        <div>
-          <button onClick={this.addTodo}>Add Todo</button>
-        </div>
-        {_.map(todosById, todo => {
+        <form onSubmit={this.addTodo}>
+          <div>
+            <input
+              type="text"
+              onChange={this.handleTodoInput}
+              value={this.state.newTodoInput}
+            />
+          </div>
+          <div>
+            <button type="submit">Add Todo</button>
+          </div>
+        </form>
+        {_.map(this.props.todosById, todo => {
           return (
             <div key={todo.id}>
-              <TodoItem todo={todo} />
+              <TodoItem todo={todo} toggleTodo={this.props.toggleTodo} />
             </div>
           );
         })}
@@ -85,8 +96,9 @@ TodoList.propTypes = {
 
 // Map Redux state to component props
 function mapStateToProps(state) {
+  console.log("mapStateToProps", state);
   return {
-    todosById: state.todosById
+    todosById: _.cloneDeep(state.todosById)
   };
 }
 

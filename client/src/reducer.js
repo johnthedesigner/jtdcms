@@ -8,44 +8,42 @@ const initialState = {
 };
 
 function reducer(state = initialState, action) {
-  console.log(action.type, action);
+  console.log(action.type, action, state);
+
   switch (action.type) {
     case actionTypes.RECEIVE_TODOS:
-      return reducerUtils.mergeList(
-        state,
-        action.todos,
-        "todosById",
-        "todoList"
-      );
+      return reducerUtils(state).mergeKeyedList(action.todos, "todosById");
 
     case actionTypes.RECEIVE_TODO:
-      return reducerUtils.mergeItem(state, action.todo, "todosById");
+      return reducerUtils(state).mergeItem(action.todo, "todosById");
 
     default:
       return state;
   }
 }
 
-// Utilities for merging data from API requests into the store
-const reducerUtils = {
-  // Merge a list of objects into the store keyed by id
-  mergeList: (state, list, listKey, collectionKey) => {
-    let objectToMerge = {};
-    objectToMerge[listKey] = _.keyBy(list, "id");
-    objectToMerge[collectionKey] = _.keys(list);
-    return Object.assign({}, state, objectToMerge);
-  },
+// Utilities for updating state without passing in state each time
+const reducerUtils = state => {
+  return {
+    // Merge a list of objects into the store keyed by id
+    mergeKeyedList: (list, listKey) => {
+      let mergeListState = Object.assign({}, state);
+      let updatedList = Object.assign(
+        {},
+        mergeListState[listKey],
+        _.keyBy(list, "id")
+      );
+      mergeListState[listKey] = updatedList;
+      return mergeListState;
+    },
 
-  // Update a single item
-  mergeItem: (state, item, listKey) => {
-    let objectToMerge = {};
-    objectToMerge[listKey] = Object.assign(
-      {},
-      state[listKey],
-      _.keyBy([item], "id")
-    );
-    return Object.assign({}, state, objectToMerge);
-  }
+    // Update a single item
+    mergeItem: (item, listKey) => {
+      let mergeItemState = Object.assign({}, state);
+      mergeItemState[listKey][item.id] = item;
+      return mergeItemState;
+    }
+  };
 };
 
 export default reducer;

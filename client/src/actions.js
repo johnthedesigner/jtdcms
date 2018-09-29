@@ -3,28 +3,24 @@ import axios from "axios";
 // Action type constants
 export const actionTypes = {
   RECEIVE_TODO: "RECEIVE_TODO",
-  RECEIVE_TODOS: "RECEIVE_TODOS"
-};
-
-// API Utils
-const endpoints = {
-  TODOS: "http://localhost:3000/api/todos",
-  TODO: id => {
-    return `http://localhost:3000/api/todos/${id}`;
-  }
+  RECEIVE_TODOS: "RECEIVE_TODOS",
+  REQUEST_TODOS: "REQUEST_TODOS"
 };
 
 // Action creators
 export const fetchTodos = () => {
   return dispatch => {
+    dispatch(requestTodos());
     axios
-      .get(endpoints.TODOS)
-      .then(response => {
-        dispatch(receiveTodos(response.data));
-      })
-      .catch(error => {
-        console.log(error);
-      });
+      .get("http://localhost:3000/api/todos")
+      .then(response => dispatch(receiveTodos(response.data)))
+      .catch(error => console.log(error));
+  };
+};
+
+const requestTodos = () => {
+  return {
+    type: actionTypes.REQUEST_TODOS
   };
 };
 
@@ -38,7 +34,7 @@ const receiveTodos = data => {
 export const createTodo = todo => {
   return dispatch => {
     axios
-      .post(endpoints.TODOS, todo)
+      .post("http://localhost:3000/api/todos", todo)
       .then(response => {
         dispatch(receiveTodo(response.data));
       })
@@ -58,7 +54,7 @@ const receiveTodo = data => {
 export const toggleTodo = (id, checked) => {
   return dispatch => {
     axios
-      .patch(endpoints.TODO(id), { checked: checked })
+      .patch(`http://localhost:3000/api/todos/${id}`, { checked: checked })
       .then(response => {
         dispatch(receiveTodo(response.data));
       })
