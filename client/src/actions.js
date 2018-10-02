@@ -7,12 +7,15 @@ export const actionTypes = {
   REQUEST_TODOS: "REQUEST_TODOS"
 };
 
+// TODO: use environment variables for this instead
+const apiRoot = "http://localhost:3000/api";
+
 // Action creators
 export const fetchTodos = () => {
   return dispatch => {
     dispatch(requestTodos());
     axios
-      .get("http://localhost:3000/api/todos")
+      .get(`${apiRoot}/todos`)
       .then(response => dispatch(receiveTodos(response.data)))
       .catch(error => console.log(error));
   };
@@ -34,7 +37,7 @@ const receiveTodos = data => {
 export const createTodo = todo => {
   return dispatch => {
     axios
-      .post("http://localhost:3000/api/todos", todo)
+      .post(`${apiRoot}/todos`, todo)
       .then(response => {
         dispatch(receiveTodo(response.data));
       })
@@ -54,7 +57,7 @@ const receiveTodo = data => {
 export const toggleTodo = (id, checked) => {
   return dispatch => {
     axios
-      .patch(`http://localhost:3000/api/todos/${id}`, { checked: checked })
+      .patch(`${apiRoot}/todos/${id}`, { checked: checked })
       .then(response => {
         dispatch(receiveTodo(response.data));
       })

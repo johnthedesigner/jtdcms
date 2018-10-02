@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import _ from "lodash";
 
+import { mapStateUtils } from "../stateUtils";
 import { fetchTodos, createTodo, toggleTodo } from "../actions.js";
 
 const TodoItem = props => {
@@ -36,11 +37,6 @@ class TodoList extends Component {
     this.props.fetchTodos();
   }
 
-  shouldComponentUpdate(nextProps) {
-    console.log("nextProps: ", nextProps);
-    return true;
-  }
-
   addTodo(e) {
     e.preventDefault();
     this.props.createTodo({ name: this.state.newTodoInput });
@@ -54,8 +50,6 @@ class TodoList extends Component {
   }
 
   render() {
-    console.log("render TodoContainer");
-
     return (
       <div>
         <div>
@@ -78,7 +72,7 @@ class TodoList extends Component {
             <button type="submit">Add Todo</button>
           </div>
         </form>
-        {_.map(this.props.todosById, todo => {
+        {_.map(this.props.todos, todo => {
           return (
             <div key={todo.id}>
               <TodoItem todo={todo} toggleTodo={this.props.toggleTodo} />
@@ -91,14 +85,13 @@ class TodoList extends Component {
 }
 
 TodoList.propTypes = {
-  todosById: PropTypes.object.isRequired
+  todos: PropTypes.array.isRequired
 };
 
 // Map Redux state to component props
 function mapStateToProps(state) {
-  console.log("mapStateToProps", state);
   return {
-    todosById: _.cloneDeep(state.todosById)
+    todos: mapStateUtils.getCollection(state, "todos")
   };
 }
 

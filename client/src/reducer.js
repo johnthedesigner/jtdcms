@@ -1,49 +1,36 @@
-import _ from "lodash";
-
+import { logAction, reducerUtils } from "./stateUtils";
 import { actionTypes } from "./actions.js";
 
+const stateShapes = {
+  collection: {
+    keys: [],
+    status: "pending"
+  },
+  list: {}
+};
+
 const initialState = {
-  todosById: {},
-  todoList: []
+  todosById: stateShapes.list,
+  todosList: stateShapes.collection
 };
 
 function reducer(state = initialState, action) {
-  console.log(action.type, action, state);
+  // Log each action that hits the reducer
+  logAction(action, state);
 
   switch (action.type) {
+    case actionTypes.REQUEST_TODOS:
+      return reducerUtils(state).markListPending("todos");
+
     case actionTypes.RECEIVE_TODOS:
-      return reducerUtils(state).mergeKeyedList(action.todos, "todosById");
+      return reducerUtils(state).mergeKeyedList(action.todos, "todos");
 
     case actionTypes.RECEIVE_TODO:
-      return reducerUtils(state).mergeItem(action.todo, "todosById");
+      return reducerUtils(state).mergeItem(action.todo, "todos");
 
     default:
       return state;
   }
 }
-
-// Utilities for updating state without passing in state each time
-const reducerUtils = state => {
-  return {
-    // Merge a list of objects into the store keyed by id
-    mergeKeyedList: (list, listKey) => {
-      let mergeListState = Object.assign({}, state);
-      let updatedList = Object.assign(
-        {},
-        mergeListState[listKey],
-        _.keyBy(list, "id")
-      );
-      mergeListState[listKey] = updatedList;
-      return mergeListState;
-    },
-
-    // Update a single item
-    mergeItem: (item, listKey) => {
-      let mergeItemState = Object.assign({}, state);
-      mergeItemState[listKey][item.id] = item;
-      return mergeItemState;
-    }
-  };
-};
 
 export default reducer;
