@@ -11,7 +11,9 @@ const stateShapes = {
 
 const initialState = {
   todosById: stateShapes.list,
-  todosList: stateShapes.collection
+  todosList: stateShapes.collection,
+  session: {},
+  user: {}
 };
 
 function reducer(state = initialState, action) {
@@ -23,7 +25,7 @@ function reducer(state = initialState, action) {
       return reducerUtils(state).logOut();
 
     case actionTypes.RECEIVE_SESSION:
-      return reducerUtils(state).newSession(action.session);
+      return reducerUtils(state).newSession(action.session, action.user);
 
     case actionTypes.REQUEST_TODOS:
       return reducerUtils(state).markListPending("todos");

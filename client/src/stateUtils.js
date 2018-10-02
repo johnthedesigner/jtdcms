@@ -1,4 +1,5 @@
 import _ from "lodash";
+import moment from "moment";
 
 // Get the name of a collection based on object type
 export const collectionName = objectType => {
@@ -13,6 +14,16 @@ export const normalizedName = objectType => {
 const loadingStatus = {
   PENDING: "PENDING",
   READY: "READY"
+};
+
+// Managing the user's session
+export const sessionUtils = {
+  loggedIn: session => {
+    let sessionExpiration = moment(session.created).add(session.ttl, "s");
+    let currentTime = moment();
+    let ttl = sessionExpiration.unix() - currentTime.unix();
+    return session.id && ttl > 0;
+  }
 };
 
 // Utilities for updating state in a stadardized way
@@ -62,14 +73,16 @@ export const reducerUtils = state => {
     },
 
     // Initiate a new session after logAction
-    newSession: session => {
+    newSession: (session, user) => {
       newState.session = session;
+      newState.user = user;
       return newState;
     },
 
     // log out user
     logOut: () => {
-      newState.session = null;
+      newState.session = {};
+      newState.user = {};
       return newState;
     }
   };
@@ -85,8 +98,8 @@ export const mapStateUtils = {
 
 // Log all actions that hit our reducer
 export const logAction = (action, state) => {
-  console.group("ACTION: ", action.type);
+  console.group(action.type);
   console.log(action);
-  console.log(state);
+  // console.log(state);
   console.groupEnd();
 };

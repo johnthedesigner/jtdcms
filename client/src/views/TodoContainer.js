@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
 import _ from "lodash";
 
 import { mapStateUtils } from "../stateUtils";
@@ -52,11 +51,6 @@ class TodoList extends Component {
   render() {
     return (
       <div>
-        <div>
-          <p>
-            <Link to="/">Back to Hello World</Link>
-          </p>
-        </div>
         <div>
           <button onClick={this.props.fetchTodos}>Fetch Todos</button>
         </div>

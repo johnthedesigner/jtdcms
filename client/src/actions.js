@@ -69,12 +69,12 @@ export const toggleTodo = (id, checked) => {
   };
 };
 
-export const logIn = params => {
+export const logIn = user => {
   return dispatch => {
     axios
-      .post(`${apiRoot}/users/login`)
+      .post(`${apiRoot}/users/login`, user)
       .then(response => {
-        dispatch(receiveSession(response.data));
+        dispatch(receiveSession(response.data, { username: user.username }));
       })
       .catch(error => {
         console.log(error);
@@ -82,9 +82,10 @@ export const logIn = params => {
   };
 };
 
-export const receiveSession = data => {
+export const receiveSession = (session, user) => {
   return {
-    session: data,
+    session,
+    user,
     type: actionTypes.RECEIVE_SESSION
   };
 };
@@ -92,5 +93,19 @@ export const receiveSession = data => {
 export const logOut = () => {
   return {
     type: actionTypes.LOG_OUT
+  };
+};
+
+export const newUser = user => {
+  return dispatch => {
+    axios
+      .post(`${apiRoot}/users`, user)
+      .then(response => {
+        // upon successful user creation, redirect to login page
+        // TODO: Add redirect
+      })
+      .catch(error => {
+        console.log(error);
+      });
   };
 };
