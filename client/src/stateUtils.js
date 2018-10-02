@@ -38,7 +38,7 @@ export const reducerUtils = state => {
     },
 
     // Merge a normalized list of objects by id and update a list of ids to display
-    mergeKeyedList: (list, objectType) => {
+    mergeCollection: (list, objectType) => {
       newState[normalizedName(objectType)] = Object.assign(
         {},
         newState[normalizedName(objectType)],
@@ -58,6 +58,18 @@ export const reducerUtils = state => {
       newState[collectionName(objectType)].keys = _.keys(
         newState[normalizedName(objectType)]
       );
+      return newState;
+    },
+
+    // Initiate a new session after logAction
+    newSession: session => {
+      newState.session = session;
+      return newState;
+    },
+
+    // log out user
+    logOut: () => {
+      newState.session = null;
       return newState;
     }
   };

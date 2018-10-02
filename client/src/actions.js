@@ -2,6 +2,8 @@ import axios from "axios";
 
 // Action type constants
 export const actionTypes = {
+  LOG_OUT: "LOG_OUT",
+  RECEIVE_SESSION: "RECEIVE_SESSION",
   RECEIVE_TODO: "RECEIVE_TODO",
   RECEIVE_TODOS: "RECEIVE_TODOS",
   REQUEST_TODOS: "REQUEST_TODOS"
@@ -64,5 +66,31 @@ export const toggleTodo = (id, checked) => {
       .catch(error => {
         console.log(error);
       });
+  };
+};
+
+export const logIn = params => {
+  return dispatch => {
+    axios
+      .post(`${apiRoot}/users/login`)
+      .then(response => {
+        dispatch(receiveSession(response.data));
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+};
+
+export const receiveSession = data => {
+  return {
+    session: data,
+    type: actionTypes.RECEIVE_SESSION
+  };
+};
+
+export const logOut = () => {
+  return {
+    type: actionTypes.LOG_OUT
   };
 };
