@@ -21,7 +21,7 @@ class RegistrationForm extends Component {
   registerAccount(e) {
     e.preventDefault();
     this.props.newAccount(this.state);
-    this.setState(initFormState);
+    this.props.history.push("/login");
   }
 
   handleFormInput(e) {

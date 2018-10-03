@@ -6,7 +6,16 @@ export const actionTypes = {
   RECEIVE_SESSION: "RECEIVE_SESSION",
   RECEIVE_TODO: "RECEIVE_TODO",
   RECEIVE_TODOS: "RECEIVE_TODOS",
-  REQUEST_TODOS: "REQUEST_TODOS"
+  REQUEST_TODOS: "REQUEST_TODOS",
+  STATUS_UPDATE: "STATUS_UPDATE"
+};
+
+export const requestStatusTypes = {
+  CREATING_ACCOUNT: "CREATING_ACCOUNT",
+  CREATING_TODO: "CREATING_TODO",
+  LOADING_TODOS: "LOADING_TODOS",
+  LOGGING_IN: "LOGGING_IN",
+  TOGGLING_TODO: "TOGGLING_TODO"
 };
 
 // TODO: use environment variables for this instead
@@ -15,17 +24,14 @@ const apiRoot = "http://localhost:3000/api";
 // Action creators
 export const fetchTodos = (token, accountId) => {
   return dispatch => {
-    dispatch(requestTodos());
+    dispatch(updateStatus(requestStatusTypes.LOADING_TODOS, true));
     axios
       .get(`${apiRoot}/accounts/${accountId}/todos?access_token=${token}`)
-      .then(response => dispatch(receiveTodos(response.data)))
+      .then(response => {
+        dispatch(receiveTodos(response.data));
+        dispatch(updateStatus(requestStatusTypes.LOADING_TODOS, false));
+      })
       .catch(error => console.log(error));
-  };
-};
-
-const requestTodos = () => {
-  return {
-    type: actionTypes.REQUEST_TODOS
   };
 };
 
@@ -38,6 +44,7 @@ const receiveTodos = data => {
 
 export const createTodo = (todo, accountId, token) => {
   return dispatch => {
+    dispatch(updateStatus(requestStatusTypes.CREATING_TODO, true));
     axios
       .post(
         `${apiRoot}/accounts/${accountId}/todos?access_token=${token}`,
@@ -45,6 +52,7 @@ export const createTodo = (todo, accountId, token) => {
       )
       .then(response => {
         dispatch(receiveTodo(response.data));
+        dispatch(updateStatus(requestStatusTypes.CREATING_TODO, false));
       })
       .catch(error => {
         console.log(error);
@@ -61,6 +69,7 @@ const receiveTodo = data => {
 
 export const toggleTodo = (id, checked, token, accountId) => {
   return dispatch => {
+    dispatch(updateStatus(requestStatusTypes.TOGGLING_TODO, true));
     axios
       .put(
         `${apiRoot}/accounts/${accountId}/todos/${id}?access_token=${token}`,
@@ -70,6 +79,7 @@ export const toggleTodo = (id, checked, token, accountId) => {
       )
       .then(response => {
         dispatch(receiveTodo(response.data));
+        dispatch(updateStatus(requestStatusTypes.TOGGLING_TODO, false));
       })
       .catch(error => {
         console.log(error);
@@ -79,10 +89,12 @@ export const toggleTodo = (id, checked, token, accountId) => {
 
 export const logIn = account => {
   return dispatch => {
+    dispatch(updateStatus(requestStatusTypes.LOGGING_IN, true));
     axios
       .post(`${apiRoot}/accounts/login?include=user`, account)
       .then(response => {
         dispatch(receiveSession(response.data));
+        dispatch(updateStatus(requestStatusTypes.LOGGING_IN, false));
       })
       .catch(error => {
         console.log(error);
@@ -105,14 +117,24 @@ export const logOut = () => {
 
 export const newAccount = account => {
   return dispatch => {
+    dispatch(updateStatus(requestStatusTypes.CREATING_ACCOUNT, true));
     axios
       .post(`${apiRoot}/accounts`, account)
       .then(response => {
         // upon successful user creation, redirect to login page
         // TODO: Add redirect
+        dispatch(updateStatus(requestStatusTypes.CREATING_ACCOUNT, false));
       })
       .catch(error => {
         console.log(error);
       });
+  };
+};
+
+export const updateStatus = (key, status) => {
+  return {
+    type: actionTypes.STATUS_UPDATE,
+    key,
+    status
   };
 };

@@ -5,7 +5,12 @@ import _ from "lodash";
 
 import ConditionalRedirect from "../ConditionalRedirect";
 import { mapStateUtils, sessionUtils } from "../stateUtils";
-import { fetchTodos, createTodo, toggleTodo } from "../actions.js";
+import {
+  fetchTodos,
+  createTodo,
+  requestStatusTypes,
+  toggleTodo
+} from "../actions.js";
 
 class TodoList extends Component {
   constructor(props) {
@@ -74,11 +79,15 @@ class TodoList extends Component {
             onClick={() =>
               this.props.fetchTodos(this.props.token, this.props.accountId)
             }
+            disabled={this.props.status[requestStatusTypes.LOADING_TODOS]}
           >
             Fetch Todos
           </button>
         </div>
-        <form onSubmit={this.addTodo}>
+        <form
+          onSubmit={this.addTodo}
+          disabled={this.props.status[requestStatusTypes.LOADING_TODOS]}
+        >
           <div>
             <input
               type="text"
@@ -87,7 +96,12 @@ class TodoList extends Component {
             />
           </div>
           <div>
-            <button type="submit">Add Todo</button>
+            <button
+              type="submit"
+              disabled={this.props.status[requestStatusTypes.CREATING_TODO]}
+            >
+              Add Todo
+            </button>
           </div>
         </form>
         {_.map(this.props.todos, todo => {
@@ -106,7 +120,8 @@ TodoList.propTypes = {
   session: PropTypes.object,
   todos: PropTypes.array.isRequired,
   token: PropTypes.string,
-  accountId: PropTypes.string
+  accountId: PropTypes.string,
+  status: PropTypes.object
 };
 
 // Map Redux state to component props
@@ -115,7 +130,8 @@ function mapStateToProps(state) {
     session: state.session,
     todos: mapStateUtils.getCollection(state, "todos"),
     token: state.session.id,
-    accountId: state.session.userId
+    accountId: state.session.userId,
+    status: state.status
   };
 }
 

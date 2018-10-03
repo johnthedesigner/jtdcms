@@ -15,7 +15,8 @@ export const initialState = {
   todosById: stateShapes.list,
   todosList: stateShapes.collection,
   session: {},
-  account: {}
+  account: {},
+  status: {}
 };
 
 // Get the name of a collection based on object type
@@ -44,28 +45,29 @@ export const sessionUtils = {
   }
 };
 
+// denormalize collections into component props
+export const mapStateUtils = {
+  getCollection: (state, objectType) => {
+    return _.map(state[collectionName(objectType)].keys, key => {
+      return state[normalizedName(objectType)][key];
+    });
+  }
+};
+
+// Log all actions that hit our reducer
+export const logAction = (action, state) => {
+  console.group(action.type);
+  console.log(action);
+  // console.log(state);
+  console.groupEnd();
+};
+
 // Utilities for updating state in a stadardized way
 export const reducerUtils = state => {
   // Clone state and use it in our reducerUtils methods
   const newState = _.cloneDeep(state);
 
   return {
-    // Give a collection pending status
-    markItemPending: (id, objectType) => {
-      newState[normalizedName(objectType)][id] = Object.assign(
-        {},
-        newState[normalizedName(objectType)][id],
-        { status: loadingStatus.PENDING }
-      );
-      return newState;
-    },
-
-    // Give a collection pending status
-    markListPending: objectType => {
-      newState[collectionName(objectType)].status = loadingStatus.PENDING;
-      return newState;
-    },
-
     // Merge a normalized list of objects by id and update a list of ids to display
     mergeCollection: (list, objectType) => {
       newState[normalizedName(objectType)] = Object.assign(
@@ -99,22 +101,12 @@ export const reducerUtils = state => {
     // log out account
     logOut: () => {
       return _.cloneDeep(initialState);
+    },
+
+    // Update a status key
+    updateStatus: (key, status) => {
+      newState.status[key] = status;
+      return newState;
     }
   };
-};
-
-export const mapStateUtils = {
-  getCollection: (state, objectType) => {
-    return _.map(state[collectionName(objectType)].keys, key => {
-      return state[normalizedName(objectType)][key];
-    });
-  }
-};
-
-// Log all actions that hit our reducer
-export const logAction = (action, state) => {
-  console.group(action.type);
-  console.log(action);
-  // console.log(state);
-  console.groupEnd();
 };
