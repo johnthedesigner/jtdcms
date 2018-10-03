@@ -1,20 +1,5 @@
-import { logAction, reducerUtils } from "./stateUtils";
+import { initialState, logAction, reducerUtils } from "./stateUtils";
 import { actionTypes } from "./actions.js";
-
-const stateShapes = {
-  collection: {
-    keys: [],
-    status: "pending"
-  },
-  list: {}
-};
-
-const initialState = {
-  todosById: stateShapes.list,
-  todosList: stateShapes.collection,
-  session: {},
-  user: {}
-};
 
 function reducer(state = initialState, action) {
   // Log each action that hits the reducer
@@ -25,7 +10,7 @@ function reducer(state = initialState, action) {
       return reducerUtils(state).logOut();
 
     case actionTypes.RECEIVE_SESSION:
-      return reducerUtils(state).newSession(action.session, action.user);
+      return reducerUtils(state).newSession(action.session, action.account);
 
     case actionTypes.REQUEST_TODOS:
       return reducerUtils(state).markListPending("todos");

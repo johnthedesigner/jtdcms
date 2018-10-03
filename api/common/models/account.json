@@ -1,0 +1,39 @@
+{
+  "name": "account",
+  "plural": "accounts",
+  "base": "User",
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "id": true,
+      "type": "string",
+      "required": true,
+      "defaultFn": "guid"
+    },
+    "username": {
+      "id": true,
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {
+    "todos": {
+      "type": "hasMany",
+      "model": "todo",
+      "foreignKey": ""
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {}
+}

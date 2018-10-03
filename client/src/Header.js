@@ -11,7 +11,10 @@ class Header extends Component {
     const SessionControls = () => {
       if (sessionUtils.loggedIn(this.props.session)) {
         return (
-          <a onClick={this.props.logOut}>Log out {this.props.user.username}</a>
+          <a onClick={this.props.logOut}>
+            Log out{" "}
+            {this.props.session.user ? this.props.session.user.username : true}
+          </a>
         );
       } else {
         return (
@@ -43,8 +46,7 @@ Header.propTypes = {
 // Map Redux state to component props
 function mapStateToProps(state) {
   return {
-    session: state.session,
-    user: state.user
+    session: state.session
   };
 }
 

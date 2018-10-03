@@ -13,11 +13,11 @@ export const actionTypes = {
 const apiRoot = "http://localhost:3000/api";
 
 // Action creators
-export const fetchTodos = () => {
+export const fetchTodos = (token, accountId) => {
   return dispatch => {
     dispatch(requestTodos());
     axios
-      .get(`${apiRoot}/todos`)
+      .get(`${apiRoot}/accounts/${accountId}/todos?access_token=${token}`)
       .then(response => dispatch(receiveTodos(response.data)))
       .catch(error => console.log(error));
   };
@@ -36,10 +36,13 @@ const receiveTodos = data => {
   };
 };
 
-export const createTodo = todo => {
+export const createTodo = (todo, accountId, token) => {
   return dispatch => {
     axios
-      .post(`${apiRoot}/todos`, todo)
+      .post(
+        `${apiRoot}/accounts/${accountId}/todos?access_token=${token}`,
+        todo
+      )
       .then(response => {
         dispatch(receiveTodo(response.data));
       })
@@ -56,10 +59,15 @@ const receiveTodo = data => {
   };
 };
 
-export const toggleTodo = (id, checked) => {
+export const toggleTodo = (id, checked, token, accountId) => {
   return dispatch => {
     axios
-      .patch(`${apiRoot}/todos/${id}`, { checked: checked })
+      .put(
+        `${apiRoot}/accounts/${accountId}/todos/${id}?access_token=${token}`,
+        {
+          checked: checked
+        }
+      )
       .then(response => {
         dispatch(receiveTodo(response.data));
       })
@@ -69,12 +77,12 @@ export const toggleTodo = (id, checked) => {
   };
 };
 
-export const logIn = user => {
+export const logIn = account => {
   return dispatch => {
     axios
-      .post(`${apiRoot}/users/login`, user)
+      .post(`${apiRoot}/accounts/login?include=user`, account)
       .then(response => {
-        dispatch(receiveSession(response.data, { username: user.username }));
+        dispatch(receiveSession(response.data));
       })
       .catch(error => {
         console.log(error);
@@ -82,10 +90,9 @@ export const logIn = user => {
   };
 };
 
-export const receiveSession = (session, user) => {
+export const receiveSession = session => {
   return {
     session,
-    user,
     type: actionTypes.RECEIVE_SESSION
   };
 };
@@ -96,10 +103,10 @@ export const logOut = () => {
   };
 };
 
-export const newUser = user => {
+export const newAccount = account => {
   return dispatch => {
     axios
-      .post(`${apiRoot}/users`, user)
+      .post(`${apiRoot}/accounts`, account)
       .then(response => {
         // upon successful user creation, redirect to login page
         // TODO: Add redirect

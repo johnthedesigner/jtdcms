@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
-import { newUser } from "../actions.js";
+import { newAccount } from "../actions.js";
 
 const initFormState = {
   username: "",
@@ -14,13 +14,13 @@ class RegistrationForm extends Component {
   constructor(props) {
     super(props);
     this.state = initFormState;
-    this.registerUser = this.registerUser.bind(this);
+    this.registerAccount = this.registerAccount.bind(this);
     this.handleFormInput = this.handleFormInput.bind(this);
   }
 
-  registerUser(e) {
+  registerAccount(e) {
     e.preventDefault();
-    this.props.newUser(this.state);
+    this.props.newAccount(this.state);
     this.setState(initFormState);
   }
 
@@ -33,7 +33,7 @@ class RegistrationForm extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.registerUser}>
+        <form onSubmit={this.registerAccount}>
           <label>
             <p>Email address</p>
             <input
@@ -74,7 +74,7 @@ class RegistrationForm extends Component {
 }
 
 RegistrationForm.propTypes = {
-  newUser: PropTypes.func.isRequired
+  newAccount: PropTypes.func.isRequired
 };
 
 // Map Redux state to component props
@@ -85,7 +85,7 @@ function mapStateToProps(state) {
 // Map Redux actions to component props
 function mapDispatchToProps(dispatch) {
   return {
-    newUser: user => dispatch(newUser(user))
+    newAccount: account => dispatch(newAccount(account))
   };
 }
 

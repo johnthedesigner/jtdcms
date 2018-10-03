@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 import { logIn } from "../actions.js";
+import { sessionUtils } from "../stateUtils";
+import ConditionalRedirect from "../ConditionalRedirect";
 
 const initFormState = {
   username: "",
@@ -13,11 +15,11 @@ class LoginForm extends Component {
   constructor(props) {
     super(props);
     this.state = initFormState;
-    this.logInUser = this.logInUser.bind(this);
+    this.logInAccount = this.logInAccount.bind(this);
     this.handleFormInput = this.handleFormInput.bind(this);
   }
 
-  logInUser(e) {
+  logInAccount(e) {
     e.preventDefault();
     this.props.logIn(this.state);
     this.setState(initFormState);
@@ -32,7 +34,11 @@ class LoginForm extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.logInUser}>
+        <ConditionalRedirect
+          condition={sessionUtils.loggedIn(this.props.session)}
+          redirectTo="/todos"
+        />
+        <form onSubmit={this.logInAccount}>
           <label>
             <p>Username</p>
             <input
@@ -63,18 +69,21 @@ class LoginForm extends Component {
 }
 
 LoginForm.propTypes = {
-  logIn: PropTypes.func.isRequired
+  logIn: PropTypes.func.isRequired,
+  session: PropTypes.object.isRequired
 };
 
 // Map Redux state to component props
 function mapStateToProps(state) {
-  return {};
+  return {
+    session: state.session
+  };
 }
 
 // Map Redux actions to component props
 function mapDispatchToProps(dispatch) {
   return {
-    logIn: user => dispatch(logIn(user))
+    logIn: account => dispatch(logIn(account))
   };
 }
 

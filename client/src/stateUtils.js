@@ -1,6 +1,23 @@
 import _ from "lodash";
 import moment from "moment";
 
+// Standardize common shapes for parts of application state
+export const stateShapes = {
+  collection: {
+    keys: [],
+    status: "pending"
+  },
+  list: {}
+};
+
+// Define an initial state for app boot and reset
+export const initialState = {
+  todosById: stateShapes.list,
+  todosList: stateShapes.collection,
+  session: {},
+  account: {}
+};
+
 // Get the name of a collection based on object type
 export const collectionName = objectType => {
   return `${objectType}List`;
@@ -19,6 +36,7 @@ const loadingStatus = {
 // Managing the user's session
 export const sessionUtils = {
   loggedIn: session => {
+    if (!session.id) return false;
     let sessionExpiration = moment(session.created).add(session.ttl, "s");
     let currentTime = moment();
     let ttl = sessionExpiration.unix() - currentTime.unix();
@@ -73,17 +91,14 @@ export const reducerUtils = state => {
     },
 
     // Initiate a new session after logAction
-    newSession: (session, user) => {
+    newSession: session => {
       newState.session = session;
-      newState.user = user;
       return newState;
     },
 
-    // log out user
+    // log out account
     logOut: () => {
-      newState.session = {};
-      newState.user = {};
-      return newState;
+      return _.cloneDeep(initialState);
     }
   };
 };

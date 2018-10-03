@@ -7,6 +7,12 @@
     "validateUpsert": true
   },
   "properties": {
+    "id": {
+      "id": true,
+      "type": "string",
+      "required": true,
+      "defaultFn": "guid"
+    },
     "name": {
       "type": "string",
       "required": true
@@ -18,7 +24,23 @@
     }
   },
   "validations": [],
-  "relations": {},
-  "acls": [],
+  "relations": {
+    "account": {
+      "type": "belongsTo",
+      "model": "account",
+      "foreignKey": "accountId",
+      "options": {
+        "nestRemoting": true
+      }
+    }
+  },
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    }
+  ],
   "methods": {}
 }

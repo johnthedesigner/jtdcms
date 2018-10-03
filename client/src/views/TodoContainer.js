@@ -3,24 +3,9 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import _ from "lodash";
 
-import { mapStateUtils } from "../stateUtils";
+import ConditionalRedirect from "../ConditionalRedirect";
+import { mapStateUtils, sessionUtils } from "../stateUtils";
 import { fetchTodos, createTodo, toggleTodo } from "../actions.js";
-
-const TodoItem = props => {
-  let { checked, id, name } = props.todo;
-  const itemStyles = checked ? { textDecoration: "line-through" } : null;
-  return (
-    <label style={itemStyles}>
-      <input
-        className={checked ? "checked" : "unchecked"}
-        type="checkbox"
-        checked={checked}
-        onChange={() => props.toggleTodo(id, !checked)}
-      />
-      <span>{name}</span>
-    </label>
-  );
-};
 
 class TodoList extends Component {
   constructor(props) {
@@ -33,12 +18,18 @@ class TodoList extends Component {
   }
 
   componentDidMount() {
-    this.props.fetchTodos();
+    // If the user is authenticated, fetch the user's todos
+    let { accountId, fetchTodos, token } = this.props;
+    if (token && accountId) fetchTodos(token, accountId);
   }
 
   addTodo(e) {
     e.preventDefault();
-    this.props.createTodo({ name: this.state.newTodoInput });
+    this.props.createTodo(
+      { name: this.state.newTodoInput, accountId: this.props.accountId },
+      this.props.accountId,
+      this.props.token
+    );
     this.setState({ newTodoInput: "" });
   }
 
@@ -49,10 +40,43 @@ class TodoList extends Component {
   }
 
   render() {
+    const TodoItem = props => {
+      let { checked, id, name } = props.todo;
+      const itemStyles = checked ? { textDecoration: "line-through" } : null;
+      return (
+        <label style={itemStyles}>
+          <input
+            className={checked ? "checked" : "unchecked"}
+            type="checkbox"
+            checked={checked}
+            onChange={() =>
+              this.props.toggleTodo(
+                id,
+                !checked,
+                this.props.token,
+                this.props.accountId
+              )
+            }
+          />
+          <span>{name}</span>
+        </label>
+      );
+    };
+
     return (
       <div>
+        <ConditionalRedirect
+          condition={!sessionUtils.loggedIn(this.props.session)}
+          redirectTo="/login"
+        />
         <div>
-          <button onClick={this.props.fetchTodos}>Fetch Todos</button>
+          <button
+            onClick={() =>
+              this.props.fetchTodos(this.props.token, this.props.accountId)
+            }
+          >
+            Fetch Todos
+          </button>
         </div>
         <form onSubmit={this.addTodo}>
           <div>
@@ -69,7 +93,7 @@ class TodoList extends Component {
         {_.map(this.props.todos, todo => {
           return (
             <div key={todo.id}>
-              <TodoItem todo={todo} toggleTodo={this.props.toggleTodo} />
+              <TodoItem todo={todo} />
             </div>
           );
         })}
@@ -79,22 +103,30 @@ class TodoList extends Component {
 }
 
 TodoList.propTypes = {
-  todos: PropTypes.array.isRequired
+  session: PropTypes.object,
+  todos: PropTypes.array.isRequired,
+  token: PropTypes.string,
+  accountId: PropTypes.string
 };
 
 // Map Redux state to component props
 function mapStateToProps(state) {
   return {
-    todos: mapStateUtils.getCollection(state, "todos")
+    session: state.session,
+    todos: mapStateUtils.getCollection(state, "todos"),
+    token: state.session.id,
+    accountId: state.session.userId
   };
 }
 
 // Map Redux actions to component props
 function mapDispatchToProps(dispatch) {
   return {
-    createTodo: todo => dispatch(createTodo(todo)),
-    fetchTodos: () => dispatch(fetchTodos()),
-    toggleTodo: (id, checked) => dispatch(toggleTodo(id, checked))
+    createTodo: (todo, accountId, token) =>
+      dispatch(createTodo(todo, accountId, token)),
+    fetchTodos: (token, accountId) => dispatch(fetchTodos(token, accountId)),
+    toggleTodo: (id, checked, token, accountId) =>
+      dispatch(toggleTodo(id, checked, token, accountId))
   };
 }
 
