@@ -1,0 +1,11 @@
+{
+  "name": "jtdcms",
+  "version": "1.0.0",
+  "description": "Starter for an app with a Node API and React Client",
+  "repository": "https://github.com/johnthedesigner/jtdcms.git",
+  "author": "johnthedesigner <john@johnthedesigner.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node node api/. & yarn --cwd client start"
+  }
+}
