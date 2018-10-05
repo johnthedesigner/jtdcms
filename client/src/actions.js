@@ -2,6 +2,7 @@ import axios from "axios";
 
 // Action type constants
 export const actionTypes = {
+  HANDLE_ERROR: "HANDLE_ERROR",
   LOG_OUT: "LOG_OUT",
   RECEIVE_SESSION: "RECEIVE_SESSION",
   RECEIVE_TODO: "RECEIVE_TODO",
@@ -31,7 +32,10 @@ export const fetchTodos = (token, accountId) => {
         dispatch(receiveTodos(response.data));
         dispatch(updateStatus(requestStatusTypes.LOADING_TODOS, false));
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        dispatch(handleError(requestStatusTypes.LOADING_TODOS, error));
+        dispatch(updateStatus(requestStatusTypes.LOADING_TODOS, false));
+      });
   };
 };
 
@@ -55,7 +59,8 @@ export const createTodo = (todo, accountId, token) => {
         dispatch(updateStatus(requestStatusTypes.CREATING_TODO, false));
       })
       .catch(error => {
-        console.log(error);
+        dispatch(handleError(requestStatusTypes.CREATING_TODO, error));
+        dispatch(updateStatus(requestStatusTypes.CREATING_TODO, false));
       });
   };
 };
@@ -82,7 +87,8 @@ export const toggleTodo = (id, checked, token, accountId) => {
         dispatch(updateStatus(requestStatusTypes.TOGGLING_TODO, false));
       })
       .catch(error => {
-        console.log(error);
+        dispatch(handleError(requestStatusTypes.TOGGLING_TODO, error));
+        dispatch(updateStatus(requestStatusTypes.TOGGLING_TODO, false));
       });
   };
 };
@@ -97,7 +103,8 @@ export const logIn = account => {
         dispatch(updateStatus(requestStatusTypes.LOGGING_IN, false));
       })
       .catch(error => {
-        console.log(error);
+        dispatch(handleError(requestStatusTypes.LOGGING_IN, error));
+        dispatch(updateStatus(requestStatusTypes.LOGGING_IN, false));
       });
   };
 };
@@ -126,7 +133,8 @@ export const newAccount = account => {
         dispatch(updateStatus(requestStatusTypes.CREATING_ACCOUNT, false));
       })
       .catch(error => {
-        console.log(error);
+        dispatch(handleError(requestStatusTypes.CREATING_ACCOUNT, error));
+        dispatch(updateStatus(requestStatusTypes.CREATING_ACCOUNT, false));
       });
   };
 };
@@ -136,5 +144,25 @@ export const updateStatus = (key, status) => {
     type: actionTypes.STATUS_UPDATE,
     key,
     status
+  };
+};
+
+export const handleError = (actionType, error) => {
+  const response = error.response ? error.response : null;
+
+  return dispatch => {
+    if (response) {
+      console.log(response.status);
+
+      // If we get an unauthorized error, reset the session
+      switch (response.code) {
+        case 401:
+          dispatch(logOut());
+          break;
+
+        default:
+          return true;
+      }
+    }
   };
 };

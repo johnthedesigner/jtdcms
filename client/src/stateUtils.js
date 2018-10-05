@@ -56,10 +56,12 @@ export const mapStateUtils = {
 
 // Log all actions that hit our reducer
 export const logAction = (action, state) => {
-  console.group(action.type);
-  console.log(action);
-  // console.log(state);
-  console.groupEnd();
+  if (process.env.NODE_ENV === "development") {
+    console.group(action.type);
+    console.log(action);
+    // console.log(state);
+    console.groupEnd();
+  }
 };
 
 // Utilities for updating state in a stadardized way
