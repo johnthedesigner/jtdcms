@@ -6,7 +6,7 @@
   "author": "johnthedesigner <john@johnthedesigner.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node node api/. & yarn --cwd client start",
-    "build": "npm --cwd client install&npm --cwd client build"
+    "api": "cd api && npm install && node .",
+    "client": "cd client && npm install && npm run build"
   }
 }
