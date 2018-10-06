@@ -7,6 +7,6 @@
   "license": "MIT",
   "scripts": {
     "start": "node node api/. & yarn --cwd client start",
-    "build": "yarn --cwd client build"
+    "build": "npm --cwd client install&npm --cwd client build"
   }
 }
