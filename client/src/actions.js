@@ -19,8 +19,8 @@ export const requestStatusTypes = {
   TOGGLING_TODO: "TOGGLING_TODO"
 };
 
-// TODO: use environment variables for this instead
-const apiRoot = "http://localhost:3000/api";
+// Get API_ROOT from environment variable
+const apiRoot = process.env.REACT_APP_API_ROOT;
 
 // Action creators
 export const fetchTodos = (token, accountId) => {
